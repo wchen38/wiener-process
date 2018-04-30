@@ -11,10 +11,8 @@ for row=1:1:5
     for k=2:1:N
         x(:,k) = (phi*x(:,k-1)) + (gamma*rand);
     end
-    hold on
-    plot(t, x(2,:));
-    %plot(x(1,:), x(2,:));
-    
+     plot(t, x(2,:)), xlabel('t'), ylabel('Output x1'), title('5 Sequences')
+     hold on
 end
 
 

@@ -1,6 +1,6 @@
 expectW= [];
 varW = [];
-delta_t = 0.05*2;
+delta_t = 0.05;
 t1 = 1;
 t2 = 2;
 t3 = 3;
@@ -25,7 +25,7 @@ varW(t3_index) = 1;
 
 
 %run the sequence 100 times
-for b=1:1:100
+for b=1:1:50
     k=1;
     %calcuates the expected value from t1 to t2
     %each expected value is stored in expectW(k)
@@ -43,7 +43,7 @@ for b=1:1:100
         varW(k+1) = A/B;
         
         %x(k)
-        x(k+1) = (rand*varW(k+1)) + expectW(k+1);
+        x(k+1) = (randn*sqrt(varW(k+1))) + expectW(k+1);
         k = k+1;
         
     end
@@ -66,7 +66,7 @@ for b=1:1:100
         varW(k+1) = A/B;
         
         %x(k)
-        x(k+1) = (rand*varW(k+1)) + expectW(k+1);
+        x(k+1) = (randn*sqrt(varW(k+1))) + expectW(k+1);
         k = k+1;
         
     end
