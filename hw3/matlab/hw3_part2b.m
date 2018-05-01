@@ -27,7 +27,7 @@ varW(t3_index) = 1;
 
 %function f = wiener_process()
 %run the sequence 100 times
-for b=1:1:50
+for b=1:1:30
     k=1;
     %calcuates the expected value from t1 to t2
     %each expected value is stored in expectW(k)
@@ -77,8 +77,53 @@ for b=1:1:50
     
 end
 
-
-
-
-
-
+delta_t = 0.05*2;
+for b=1:1:30
+    k=1;
+    %calcuates the expected value from t1 to t2
+    %each expected value is stored in expectW(k)
+    for t=1.05:0.05:n
+        t_prev=t-delta_t;
+        
+        %expected value
+        A = ( (t2-t)/(t2-t_prev) )*x(k);
+        B = ( (t-t_prev)/(t2-t_prev) )*x(index);
+        expectW(k+1) = A+B;
+        
+        %variance
+        A = (t2-t) * (t-t_prev);
+        B = t2-t_prev;
+        varW(k+1) = A/B;
+        
+        %x(k)
+        x(k+1) = (randn*sqrt(varW(k+1))) + expectW(k+1);
+        k = k+1;
+        
+    end
+    
+    %calcuates the expected value from t2 to t3
+    %each expected value is stored in expectW(k)
+    k=index;
+    for t=2.05:0.05:m
+        
+        t_prev=t-delta_t;
+        
+        %expected value
+        A = ( (t3-t)/(t3-t_prev) )*x(k);
+        B = ( (t-t_prev)/(t3-t_prev) )*x(t3_index);
+        expectW(k+1) = A+B;
+        
+        %variance
+        A = (t3-t) * (t-t_prev);
+        B = t3-t_prev;
+        varW(k+1) = A/B;
+        
+        %x(k)
+        x(k+1) = (randn*sqrt(varW(k+1))) + expectW(k+1);
+        k = k+1;
+        
+    end
+    plot(x), xlabel('t'), ylabel('x(t)'), title('Wiener Process With c=1 & c=2 Overlap')
+    hold on
+    
+end

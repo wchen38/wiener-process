@@ -8,15 +8,22 @@ gamma = [1; 0.5];
 x = []; stdx1 = []; stdx2 = [];
 for row=1:1:N
     x(:,1) = [0;0];
-    for k=2:1:N
+    for k=2:1:500
         x(:,k) = (phi*x(:,k-1)) + (gamma*randn);
     end
-    hold on
-    plot(t, x(2,:));
+    %storing the x1 and x2 in seperate vector
     stdx1(row,:) = x(1,:);
     stdx2(row,:) = x(2,:);
+
 end
-std_x1 = std(stdx1(:,2))
-std_x2 = std(stdx2(:,2))
+
+%plotting the std of all the columns
+for k=1:1:500
+    std_x1(k) = std(stdx1(:,k));
+    std_x2(k) = std(stdx2(:,k));
+end
 
 
+
+plot(std_x2), xlabel('t'), ylabel('std of x1'), title('500 Sequences')
+mean(std_x2)
