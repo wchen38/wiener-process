@@ -77,7 +77,7 @@ for b=1:1:30
     
 end
 
-delta_t = 0.05*2;
+delta_t = 0.05;
 for b=1:1:30
     k=1;
     %calcuates the expected value from t1 to t2
@@ -119,7 +119,7 @@ for b=1:1:30
         varW(k+1) = A/B;
         
         %x(k)
-        x(k+1) = (randn*sqrt(varW(k+1))) + expectW(k+1);
+        x(k+1) = (randn*2*sqrt(varW(k+1))) + expectW(k+1);
         k = k+1;
         
     end
