@@ -5,8 +5,9 @@ clc
 %Wuyuan Chen
 %
 global r1 r2;
-r1=1000; r2=500; varR=5;
+r1=1000; r2=500; R=sqrt(5)*randn;
 y_measure = [9055; 8560; 7963; 7467; 7000; 6378; 5885; 5400; 4928; 4503];
+x_m(1) = 9055;
 
 x_hat(:, 1) = [10000; -500; 6*(10^7)];
 P_vector(:, 1) = [50; 0; 0; 0; 200; 0; 0; 0; 2*(10^12)];
@@ -35,34 +36,48 @@ for k=2:1:10
     %-------------------Step 3 Update ----------------------%
 %find the partial derivative of h = sqrt(r1^2 + (x_k-r2)^2  )
 % [dh/dx;    dh/dv;   dh/dbeta]
-dhdx = (x_hat(1)-r2)/sqrt( (x_hat(1)^2)-(r1*x_hat(1)) + 1250000);
+dhdx = (x_before_update(1)-r2)/sqrt( (x_before_update(1)^2)-(r1*x_before_update(1)) + 1250000);
 H = [dhdx 0 0];
 %y_vector = [zkvk_func(x_before_update(1)) zk_func(x_before_update(2)) zk_func(x_before_update(3))];
 %obs_h = [zkvk_func(x_before_update(1)) zk_func(x_before_update(2)) zk_func(x_before_update(3))];
 y_obs = zkvk_func(x_before_update(1));
 h_obs = zkvk_func(x_before_update(1));
 %find the kalman gain Version 1
-K = P_matrix*H'*inv(H*P_matrix*H' + varR);
-x_hat(:, 1) = x_before_update + K*(y_measure(1) - h_obs);
+K = P_matrix*H'*inv(H*P_matrix*H' + R);
+x_hat(:, k) = x_before_update + K*(y_measure(k-1) - h_obs);
 P_matrix = (eye(3) - K*H)*P_matrix;
 P_vector(:, index) = [P_matrix(1); P_matrix(4); P_matrix(7);
                    P_matrix(2); P_matrix(5); P_matrix(8);
                    P_matrix(3); P_matrix(6); P_matrix(9)];
+x_after_update = x_hat(:, k);
 index = index + 1;    
-init_value = [x_hat(1); x_hat(2); x_hat(3);
+init_value = [x_after_update(1); x_after_update(2); x_after_update(3);
     P_matrix(1); P_matrix(4); P_matrix(7); 
     P_matrix(2); P_matrix(5); P_matrix(8);
     P_matrix(3); P_matrix(6); P_matrix(9)];
-end
 
+x_m(k) = sqrt( (h_obs^2) - (r1^2) ) + r2;
+end
+plot(x_hat(1,:));
+hold on 
+plot(x_m);
+xlabel('t'), ylabel('Height'), title('Evolution of Heights')
+legend('EKF x','x_m','Location','southwest')
+
+figure
+plot(x_hat(2, :));xlabel('t'), ylabel('Velocity'), title('Estimation of Velocity')
+
+figure 
+plot(x_hat(3, :));xlabel('t'), ylabel('Beta'), title('Estimation of Ballistic Coefficient')
+
+figure
+plot(P_vector(1,:)); xlabel('t'), ylabel('height variance'), title('Evolution of the Height Variance')
 function zk = zkvk_func(x)
 global r1 r2
     vk = sqrt(5)*randn;
     zk = sqrt(r1^2 + (x - r2)^2) + vk;
 end
-function zk = zk_func(x)
-global r1 r2
-    vk = sqrt(5)*randn;
-    zk = sqrt(r1^2 + (x - r2)^2);
-end
+
+
+
 
