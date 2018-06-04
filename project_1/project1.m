@@ -65,6 +65,7 @@ Z = [1 0 0 0; 0 1 0 0] * X;
 K = (P*H')/(H*P*H' + R);
 X = X + K*(position(k,:)' - Z);
 xRec(:, k) = X;
+xRec(4, k) = wrapToPi(X(4)); %wrap angles from pi to -pi
 P = (eye(4) - K*H)*P;
   P_Rec(:, index) = [P(1,1); P(2,2); P(3,3); P(4,4);]; 
   index = index +1;
