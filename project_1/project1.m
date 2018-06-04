@@ -24,7 +24,7 @@ thetaRec = X(4);
 varX0 = (1.3^2 +1.3^2+1.3^2)/3;
 varY0 = (1.3^2 +1.3^2+1.3^2)/3;
 varV0 = varX0 / dt;
-varTheta0 = (5*pi/180)^2;
+varTheta0 = (1*pi/180)^2;
 
 P = [varX0  0    0    0; 
       0   varY0  0    0;
@@ -46,7 +46,7 @@ Q = [1 0; 0 1];
 
 %-----------------Prediction step---------------
 index = 2;
-for k=2:length(xAxis)
+for k=1:length(xAxis)
     X = X + [vRec*cos(headingAngle(k))*dt; vRec*sin(headingAngle(k))*dt; 0; 0];
     
     phi = [1    0   dt*cos(headingAngle(k)) -vRec*dt*sin(headingAngle(k)); 
@@ -63,7 +63,7 @@ H = [1 0 0 0; 0 1 0 0];
 R = [1.3^2 0; 0 1.3^2];
 Z = [1 0 0 0; 0 1 0 0] * X;
 K = (P*H')/(H*P*H' + R);
-X = X + K*(position(k)' - Z);
+X = X + K*(position(k,:)' - Z);
 xRec(:, k) = X;
 P = (eye(4) - K*H)*P;
   P_Rec(:, index) = [P(1,1); P(2,2); P(3,3); P(4,4);]; 
@@ -71,5 +71,32 @@ P = (eye(4) - K*H)*P;
 end
 plot(xAxis, yAxis); hold on
 plot(xRec(1,:),xRec(2,:))
+figure 
+plot(headingAngle); hold on
+plot(xRec(4,:));
 
+%--------------------------2nd Order Filter--------------------------------
+clear X
+X = [x0; y0; v0; theta0];
+F_k = [0 0 0 -v0*dt*cos(theta0); 
+       0 0 0  v0*dt*sin(theta0);
+       0 0 0 0
+       0 0 0 0];
+   
+P_k = [varX0  0    0    0; 
+      0   varY0  0    0;
+      0     0  varV0  0;
+      0     0    0 varTheta0];
 
+G_k = [0 0; 0 0];
+
+% for k = 1:length(xAxis)
+%     b_k = b_k + (eye(length(xAxis)*());
+% end 
+len = length(xAxis);
+%syms n
+%S1 = symsum(eye(n)*(0.5*trace(F_k*P_k) + 0.5*trace(G_k*Q)), n, [0 4] );
+%-----------------------Prediction Step---------------------------
+% for k=1:length(xAxis)
+%     X = X + [vRec*cos(headingAngle(k))*dt; vRec*sin(headingAngle(k))*dt; 0; 0];
+% end 
