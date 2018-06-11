@@ -3,7 +3,7 @@ clear all
 clc
 S = load('data3D.mat');
 
- plot3(S.xm, S.ym, S.zm); title('Evolution of position'); hold on
+ plot3(S.xm, S.ym, S.zm); hold on
 % figure
 % plot(S.pitch);title('Evolution of Pitch')
 % figure
@@ -27,9 +27,9 @@ sigmaVy = 2*0.01^2/(S.dtrec(44)^2);
 sigmaVz = 2*0.01^2/(S.dtrec(44)^2);
 sigmaYaw = (pi/180)^2;
 
-sumRes= 0;
-sumResRec = [];
 
+sumResRec = [];
+cRec = [];
  g = 9.8;
  %c = 1;
 
@@ -48,17 +48,21 @@ yawm0 = S.yawm(44);
 pitch = S.pitch * (pi/180);
 roll = S.roll * (pi/180);
 
-Xm = [xm0; ym0; zm0; vx0; vy0; vz0; yawm0];
-xRec = Xm;
-varP0 = [0.01^2 0.01^2 0.01^2 2*0.01^2/(S.dtrec(44)^2) 2*0.01^2/S.dtrec(44)^2 2*0.01^2/S.dtrec(44)^2 (pi/180)^2];
-Pm = diag(varP0);
 
-for c0=2:0.01:3
+%xRec = Xm;
+varP0 = [0.01^2 0.01^2 0.01^2 2*0.01^2/(S.dtrec(44)^2) 2*0.01^2/S.dtrec(44)^2 2*0.01^2/S.dtrec(44)^2 (pi/180)^2];
+
+c00 = [1500:50:3000];
+for c0=1500:50:3000
+    Xm = [xm0; ym0; zm0; vx0; vy0; vz0; yawm0];
+    Pm = diag(varP0);
     xRec = Xm;
+    sumRes= 0;
     for k=45:length(S.xm)
-        dt = S.dtrec(k-1);
+        dt = S.dtrec(k-41);
         s = (255/6000) * S.thrust(k);
         c = (0.000409*(s^2) + 0.1405*s - 0.099)/c0;
+       %c = 1;
         Q = diag(varQ) * dt;
         gamma = [0 0 0 0;
             0 0 0 0;
@@ -104,9 +108,18 @@ for c0=2:0.01:3
         
         %sum of the residual
         sumRes = sumRes+(res(1)^2 + res(2)^2 +res(3)^2 +res(4)^2);
+        
     end
     plot3(xRec(1,:), xRec(2,:), xRec(3,:)); hold on
     sumResRec = [sumResRec (1/(len-44))*sumRes];
+    cRec = [cRec, c];
     clear xRec
 end 
-
+ xlabel('x'), ylabel('y'), zlabel('z');
+ title('Overlay of Estimated Position With Different c_0')
+ 
+ figure
+ plot(c00, sumResRec);
+ xlabel('c_0'), ylabel('Residual');
+ title('Evolution of Average Sum of Square')
+ 

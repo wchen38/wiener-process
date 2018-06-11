@@ -3,23 +3,7 @@ clear all
 clc
 S = load('data3D.mat');
 
-% plot3(S.xm, S.ym, S.zm); title('Evolution of position')
-% figure
-% plot(S.pitch);title('Evolution of Pitch')
-% figure
-% plot(S.roll);title('Evolution of Roll')
-% figure
-% plot(S.yawm);title('Evolution of yam')
-% figure 
-% plot(S.thrust); title('Evolution of thrust')
-% figure 
-% plot(S.ans);title('Evolution of angles')
-% figure 
-% plot(S.xm); title('Evolution of x')
-% figure
-% plot(S.ym); title('Evolution of y')
-% figure
-% plot(S.zm); title('Evolution of z')
+
 
 sigmaVx = 2*0.01^2/(S.dtrec(44)^2);
 sigmaVy = 2*0.01^2/(S.dtrec(44)^2);
@@ -27,8 +11,8 @@ sigmaVz = 2*0.01^2/(S.dtrec(44)^2);
 sigmaYaw = (pi/180)^2;
 
  g = 9.8;
- c = 1;
-
+ %c = 5.7718e+07;
+ c =1;
 dt0 = S.dtrec(44);
 varQ = [1 1 1 .001];
 
@@ -36,7 +20,9 @@ varQ = [1 1 1 .001];
 varR = [0.01^2, 0.01^2, 0.01^2, (pi/180)^2];
 R = diag(varR);
 
- 
+VxeRec = [];
+VyeRec = [];
+VzeRec = [];
 %----------------------inital guess ----------------------------%
 xm0 = S.xm(44); ym0 = S.ym(44); zm0 = S.zm(44); vx0 = (S.xm(44)-S.xm(43))/dt0;
 vy0 = (S.ym(44)-S.ym(43))/dt0; vz0 = (S.zm(44)-S.zm(43))/dt0;
@@ -46,7 +32,7 @@ roll = S.roll * (pi/180);
 
 Xm = [xm0; ym0; zm0; vx0; vy0; vz0; yawm0];
 xRec = Xm;
-varP0 = [0.01^2 0.01^2 0.01^2 2*0.01^2/(S.dtrec(44)^2) 2*0.01^2/S.dtrec(44)^2 2*0.01^2/S.dtrec(44)^2 (pi/180)^2];
+varP0 = [0.01^2 0.01^2 0.01^2 2*0.01^2/S.dtrec(44)^2 2*0.01^2/S.dtrec(44)^2 2*0.01^2/S.dtrec(44)^2 (pi/180)^2];
 Pm = diag(varP0);
 for k=45:length(S.xm)
      dt = S.dtrec(k-1);
@@ -86,13 +72,62 @@ for k=45:length(S.xm)
     Pm = phi*Pm*phi' + gamma*Q*gamma';
     
     %-----------------Update step----------------------
-    Pm
     K = Pm*H'/(H*Pm*H' + R);
     res = [S.xm(k); S.ym(k); S.zm(k); S.yawm(k)] - [Xm(1); Xm(2); Xm(3); Xm(7)];
     Xm = Xm + K*(res);
     xRec = [xRec Xm];
     Pm = (eye(7) - K*H)*Pm;
     
+    %velocity
+    Vxe = (S.xm(k) - S.xm(k-1))/dt;
+    Vye = (S.ym(k) - S.ym(k-1))/dt;
+    Vze = (S.zm(k) - S.zm(k-1))/dt;
+    
+    VxeRec = [VxeRec Vxe];
+    VyeRec = [VyeRec Vxe];
+    VzeRec = [VzeRec Vxe];
+    
+    
+    
 end 
+ plot3(S.xm, S.ym, S.zm); hold on
+ plot3(xRec(1,:), xRec(2,:), xRec(3,:));
+ xlabel('x'), ylabel('y'), zlabel('z'), title('Evolution of position'); hold on
+ legend('measurement result','EKF result','Location','southwest')
+ figure
+ 
+ plot(VxeRec); hold on
+ plot(xRec(4,:));
+ xlabel('t'), ylabel('Vx'); hold on
+ title('Evolution of Velocity in X Aixs')
+ legend('measurement result','EKF result','Location','southwest')
+ figure 
+ 
+ plot(VyeRec); hold on
+ plot(xRec(5,:));
+ xlabel('t'), ylabel('Vy'); hold on
+ title('Evolution of Velocity Y Aixs') 
+ legend('measurement result','EKF result','Location','southwest')
+ figure 
+ 
+ plot(VzeRec); hold on
+ plot(xRec(6,:));
+ xlabel('t'), ylabel('Vz'); hold on
+ title('Evolution of Velocity Z Aixs')
+ legend('measurement result','EKF result','Location','southwest')
+% figure
+% plot(S.roll);title('Evolution of Roll')
+% figure
+% plot(S.yawm);title('Evolution of yam')
+% figure 
+% plot(S.thrust); title('Evolution of thrust')
+% figure 
+% plot(S.ans);title('Evolution of angles')
+% figure 
+% plot(S.xm); title('Evolution of x')
+% figure
+% plot(S.ym); title('Evolution of y')
+% figure
+% plot(S.zm); title('Evolution of z')
 
 

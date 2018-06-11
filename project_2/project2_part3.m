@@ -1,7 +1,7 @@
 %Wuyuan Chen 
 clear all
 clc
-S = load('./dataPart3/dataSet1.mat');
+S = load('./dataPart3/dataSet3.mat');
 % 
  plot(S.xm, S.ym); title('Evolution of Position'); hold on
 % figure 
@@ -78,3 +78,14 @@ for k=45:length(S.xm)
  Xrec = [Xrec X];
 end
 plot(Xrec(1,:), Xrec(2,:))
+xlabel('x'), ylabel('y');
+title('Overlap of Measurement and Estimate Position')
+legend('measurement result','EKF result','Location','southwest')
+
+figure
+
+plot(S.yawm);  title('Evolution of Yawm'); hold on
+plot(Xrec(5,:))
+xlabel('t'), ylabel('yaw');
+title('Evolution of position')
+legend('measurement result','EKF result','Location','southwest')
