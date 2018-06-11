@@ -1,7 +1,7 @@
 %Wuyuan Chen 
 clear all
 clc
-S = load('./dataPart3/dataSet3.mat');
+S = load('./dataPart3/dataSet2.mat');
 % 
  plot(S.xm, S.ym); title('Evolution of Position'); hold on
 % figure 
